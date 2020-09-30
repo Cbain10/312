@@ -72,7 +72,6 @@ class ConvexHullSolver(QObject):
 		t3 = time.time()
 		# this is a dummy polygon of the first 3 unsorted points
 		#polygon is simply a list of QLineF objects
-		# polygon = [QLineF(points[i],points[(i+1)%3]) for i in range(3)]
 		polygon = self.solveConvexHull(points)
 		# polygon = self.myTestMethod(points)
 		# TODO: REPLACE THE LINE ABOVE WITH A CALL TO YOUR DIVIDE-AND-CONQUER CONVEX HULL SOLVER
@@ -83,19 +82,20 @@ class ConvexHullSolver(QObject):
 		self.showHull(polygon,RED)
 		self.showText('Time Elapsed (Convex Hull): {:3.3f} sec'.format(t4-t3))
 
-	def solveConvexHull(self, points):		# FIXME recursion issues - not reaching base case
+	def solveConvexHull(self, points):
 		if len(points) == 1:
 			print("1")
 			print("reached the base case")
 			line = QLineF(points[0],points[0])
 			hull = [line]
-			return hull			# FIXME return a list of single QLineF object?
+			return hull
 		n = len(points)
-		print(n)
-		h1 = self.solveConvexHull(points[0: (n//2)])		# FIXME not reaching base case for odd numbers
+		print(str(n) + " " + str(n//2) + " " + str(n-(n//2)))
+		h1 = self.solveConvexHull(points[0: (n//2)])
 		print("Size of X = " + str(len(h1)))
-		h2 = self.solveConvexHull(points[((n+1)//2): n])
+		h2 = self.solveConvexHull(points[(n//2): n+1])
 		print("Size of Y = " + str(len(h2)))
+		# DIVIDING PROPERLY
 		result = self.combineHulls(h1, h2)
 		print("New hull size = " + str(len(result)))
 		return result
@@ -112,7 +112,6 @@ class ConvexHullSolver(QObject):
 		print("COMBINE hull1 = " + str(len(h1)) + " hull2 = " + str(len(h2)))
 		newHull.append(line1)
 		tempPoint = line1.p2()
-		# go through lines in right hull, add to new list
 		# FIXME - wont always start with correct line in hull - needs to be cicrular list
 		# iterate 2n - 1 times? always guaranteed to find all the lines before combining hulls
 		for edge in h2:
