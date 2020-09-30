@@ -74,7 +74,7 @@ class ConvexHullSolver(QObject):
 		#polygon is simply a list of QLineF objects
 		# polygon = [QLineF(points[i],points[(i+1)%3]) for i in range(3)]
 		polygon = self.solveConvexHull(points)
-
+		# polygon = self.myTestMethod(points)
 		# TODO: REPLACE THE LINE ABOVE WITH A CALL TO YOUR DIVIDE-AND-CONQUER CONVEX HULL SOLVER
 		t4 = time.time()
 
@@ -85,22 +85,31 @@ class ConvexHullSolver(QObject):
 
 	def solveConvexHull(self, points):		# FIXME recursion issues - not reaching base case
 		if len(points) == 1:
+			print("1")
 			print("reached the base case")
 			line = QLineF(points[0],points[0])
 			hull = [line]
 			return hull			# FIXME return a list of single QLineF object?
 		n = len(points)
-		x = self.solveConvexHull(points[0: ((n//2)-1)])		# FIXME not reaching base case for odd numbers
-		print("finished X")
-		y = self.solveConvexHull(points[(n//2): n - 1])
-		print("finished Y")
-		result = self.combineHulls(x, y)
+		print(n)
+		h1 = self.solveConvexHull(points[0: (n//2)])		# FIXME not reaching base case for odd numbers
+		print("Size of X = " + str(len(h1)))
+		h2 = self.solveConvexHull(points[((n+1)//2): n])
+		print("Size of Y = " + str(len(h2)))
+		result = self.combineHulls(h1, h2)
+		print("New hull size = " + str(len(result)))
 		return result
 
-	def combineHulls(self, h1, h2):
+	def combineHulls(self, h1, h2):				# FIXME always has enter the first if-statement, not combining properly
 		line1 = self.findUpperTangent(h1, h2)		# returns a single QLineF object
-		line2 = self.findLowerTangent(h1, h2)		# returns a single QLineF object
+		line2 = self.findLowerTangent(h1, h2)
+		if line1 == line2:
+			newHull = [line1]
+			print("combine hulls of size 1")
+			return newHull
+		# returns a single QLineF object
 		newHull = []
+		print("COMBINE hull1 = " + str(len(h1)) + " hull2 = " + str(len(h2)))
 		newHull.append(line1)
 		tempPoint = line1.p2()
 		# go through lines in right hull, add to new list
@@ -120,6 +129,8 @@ class ConvexHullSolver(QObject):
 				tempPoint = edge.p2()
 			if tempPoint == line1.p1():
 				break
+		print("hull successfully combined with new size ")
+		print(len(newHull))
 		return newHull
 
 	def findUpperTangent(self, hull1, hull2):
@@ -143,6 +154,7 @@ class ConvexHullSolver(QObject):
 				tempLine = QLineF(hull1[p%h1Size].p2(),hull2[r%h2Size].p2())
 				q = r
 				tangentFound = 0
+		# print("found upper tangent")
 		return tempLine
 
 
@@ -167,6 +179,7 @@ class ConvexHullSolver(QObject):
 				tempLine = QLineF(hull1[p%h1Size].p2(),hull2[r%h2Size].p2())
 				q = r
 				tangentFound = 0
+		# print("found lower tangent")
 		return tempLine
 
 
